@@ -1,0 +1,6 @@
+dependencies:
+- name: common
+  repository: https://owit.jfrog.io/artifactory/api/helm/charts
+  version: 1.1.0
+digest: sha256:905a03f9fe4766829f84bdb92629e429dcddb5eb80521092f191a87c7fff853f
+generated: "2022-04-20T18:24:21.620622091-04:00"

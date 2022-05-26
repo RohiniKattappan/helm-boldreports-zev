@@ -1,0 +1,14 @@
+{{- if .Values.persistence.volume.enabled }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    name: {{ include "bold-reports.persistence.volumeName" . }}
+spec:
+    capacity:
+        storage: {{ default "4Gi" .Values.persistence.size }}
+    volumeMode: Filesystem
+    accessModes:
+        - ReadWriteMany
+    persistentVolumeReclaimPolicy: {{ default "Retain" .Values.persistence.volume.reclaimPolicy }}
+    storageClassName: {{ .Values.persistence.storageClass.name }}
+{{- end }}

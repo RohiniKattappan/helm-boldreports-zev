@@ -1,0 +1,22 @@
+OWIT Global > Charts > Bold Reports
+
+Bold Reports was Deployed to {{ .Release.Namespace }}. Check the resources to ensure a fully successful Deployment.
+Some resources may have failed due to in-proper configuration. If so, adjust, and do it again! 
+
+Bold Reports Guide
+
+How to access your Bold Reports instance.
+
+{{- if .Values.ingress.enabled }}
+An ingress was configured with the following information:
+
+Bold Reports Url:       https://{{ .Values.ingress.hostname }}{{ .Values.ingress.path }}
+{{- end }}
+
+Volume Storage Size:    {{ .Values.persistence.size }}
+
+To upgrade the instance you can use the following command:
+
+helm upgrade {{ .Release.Name }} -n {{ include "bold-reports.namespace" . }}
+
+You can also use the --install argument with an Upgrade to install it if it may not exist.

@@ -1,0 +1,268 @@
+global:
+  storageClassName: ""
+# Bold Reports Web Application Resources
+namespace: bold-services
+idWeb:
+  replicaCount: 1
+  container: 
+    port: 80
+  image:
+    registry: gcr.io/boldreports
+    repository: bold-identity
+    pullPolicy: IfNotPresent
+    tag: "3.3.23"
+  resources:
+    requests:
+      cpu: 250m 
+      memory: 750Mi
+    limits:
+      cpu: 2000m
+      memory: 8Gi    
+  env:
+    - name: APP_BASE_URL
+      value: "https://bold-reports.owitglobal.io"
+  readinessProbe:
+    httpGet:
+      path: /health-check
+      port: 80
+    initialDelaySeconds: 200
+    periodSeconds: 10
+    timeoutSeconds: 10
+idApi:
+  replicaCount: 1
+  container: 
+    port: 80
+  image:
+    registry: gcr.io/boldreports
+    repository: bold-idp-api
+    pullPolicy: IfNotPresent
+    tag: "3.3.23"
+  resources:
+    requests:
+      cpu: 250m 
+      memory: 750Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  env:
+    - name: APP_BASE_URL
+      value: "https://bold-reports.owitglobal.io"
+  readinessProbe:
+    httpGet:
+      path: /health-check
+      port: 80
+    initialDelaySeconds: 200
+    periodSeconds: 10
+    timeoutSeconds: 10
+reportsWeb:
+  replicaCount: 1
+  container: 
+    port: 80
+  image:
+    registry: gcr.io/boldreports
+    repository: boldreports-server
+    pullPolicy: IfNotPresent
+    tag: "3.3.23"
+  resources:
+    requests:
+      cpu: 250m 
+      memory: 750Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  env:
+    - name: APP_BASE_URL
+      value: "https://bold-reports.owitglobal.io"    
+  readinessProbe:
+    httpGet:
+      path: /health-check
+      port: 80
+    initialDelaySeconds: 200
+    periodSeconds: 10
+    timeoutSeconds: 10
+jobs:
+  replicaCount: 1
+  container: 
+    port: 80
+  image:
+    registry: gcr.io/boldreports
+    repository: boldreports-server-jobs
+    pullPolicy: IfNotPresent
+    tag: "3.3.23"
+  resources:
+    requests:
+      cpu: 250m 
+      memory: 750Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi    
+  readinessProbe:
+    httpGet:
+      path: /health-check
+      port: 80
+    initialDelaySeconds: 200
+    periodSeconds: 10
+    timeoutSeconds: 10
+designer:
+  replicaCount: 1
+  container: 
+    port: 80
+  image:
+    registry: gcr.io/boldreports
+    repository: boldreports-designer
+    pullPolicy: IfNotPresent
+    tag: "3.3.23"
+  env:
+    - name: widget_reportsng_map_enable
+      value: ""
+    - name: widget_reportsng_map_api_key
+      value: ""
+    - name: APP_BASE_URL
+      value: "https://bold-reports.owitglobal.io"
+  resources:
+    requests:
+      cpu: 250m 
+      memory: 750Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  readinessProbe:
+    httpGet:
+      path: /health-check
+      port: 80
+    initialDelaySeconds: 200
+    periodSeconds: 10
+    timeoutSeconds: 10
+reportsApi:
+  replicaCount: 1
+  container: 
+    port: 80
+  image:
+    registry: gcr.io/boldreports
+    repository: boldreports-server-api
+    pullPolicy: IfNotPresent
+    tag: "3.3.23"
+  resources:
+    requests:
+      cpu: 250m 
+      memory: 750Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  env:
+  - name: APP_BASE_URL
+    value: "https://bold-reports.owitglobal.io"      
+  readinessProbe:
+    httpGet:
+      path: /health-check
+      port: 80
+    initialDelaySeconds: 200
+    periodSeconds: 10
+    timeoutSeconds: 10
+ums:
+  replicaCount: 1
+  container: 
+    port: 80
+  image:
+    registry: gcr.io/boldreports
+    repository: bold-ums
+    pullPolicy: IfNotPresent
+    tag: "3.3.23"
+  resources:
+    requests:
+      cpu: 250m 
+      memory: 750Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  env:
+    - name: APP_BASE_URL
+      value: "https://bold-reports.owitglobal.io"
+  readinessProbe:
+    httpGet:
+      path: /health-check
+      port: 80
+    initialDelaySeconds: 200
+    periodSeconds: 10
+    timeoutSeconds: 10
+imagePullSecrets: {}
+nameOverride: "bold-reports"
+fullnameOverride: "bold-reports"
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+podAnnotations: {}
+podSecurityContext:
+  enabled: true
+  fsGroup: 1001
+securityContext:
+  enabled: true
+  runAsUser: 1001
+  runAsNonRoot: true
+service:
+  type: ClusterIP
+  port: 80
+ingress:
+  enabled: true  
+  annotations:
+    cert-manager.io/issuer: "letsencrypt-staging"
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+    nginx.ingress.kubernetes.io/proxy-buffers: "4 256k"
+    nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "256k"
+    nginx.ingress.kubernetes.io/large-client-header-buffers: "4 16k"
+    nginx.ingress.kubernetes.io/fastcgi-buffers: "16 16k"
+    nginx.ingress.kubernetes.io/fastcgi-buffer-size: "32k"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/affinity: cookie
+    nginx.ingress.kubernetes.io/session-cookie-hash: sha1
+    nginx.ingress.kubernetes.io/session-cookie-name: "boldreports.k8s.pod.id"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "600"
+    nginx.ingress.kubernetes.io/proxy-body-size: 200m
+  host:
+    name: bold-reports.owitglobal.io
+    path: /
+    tls: true
+    tlsHosts:
+      - "bold-reports.owitglobal.io"
+    tlsSecret: "bold-reports-tls"
+postgres: 
+  enabled: true
+  service:
+    name: "owit-postgres"
+    sessionAffinity: "None"
+    externalName: "owit-postgres.owit-shared-us.svc.cluster.local"
+persistence:
+  storageClass:
+    name: "efs-sc"
+    fileSystemId: "fs-03926caa9ad3da534"
+    create: true
+    basePath: "/dynamic_provisioning"
+  volume:
+    reclaimPolicy: "Retain"
+    nameOverride: ""
+    enabled: false
+  size: 6Gi
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+  behavior:
+    scaleDown:
+    stabilizationWindowSeconds: 60
+    policies:
+    - type: Pods
+      value: 1
+      periodSeconds: 60
+    - type: Percent
+      value: 10
+      periodSeconds: 60
+nodeSelector: {}
+tolerations: []
+affinity: {}

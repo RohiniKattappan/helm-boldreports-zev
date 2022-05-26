@@ -1,0 +1,18 @@
+{{- if .Values.postgres.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "bold-reports.postgres.serviceName" . }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  namespace: {{ include "bold-reports.namespace" .  | quote}}
+spec:
+  type: ExternalName
+  externalName: {{ .Values.postgres.service.externalName }}
+  sessionAffinity: {{ default "None" .Values.postgres.service.sessionAffinity }}
+{{- end -}}

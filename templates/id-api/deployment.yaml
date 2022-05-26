@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bold-reports.idApi.name" . }}
+  namespace: {{ include "bold-reports.namespace" . }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}    
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }} 
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.idApi.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels: {{- include "bold-reports.idApi.matchLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- if .Values.podAnnotations }}
+      annotations: {{- include "common.tplvalues.render" (dict "value" .Values.podAnnotations "context" $) | nindent 8 }}
+      {{- end }}
+      labels: {{- include "common.labels.standard" . | nindent 8 }}
+        app.kubernetes.io/component: id-api    
+        {{- if .Values.podLabels }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.podLabels "context" $) | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- include "bold-reports.imagePullSecrets" . | nindent 6 }}
+      serviceAccountName: {{ include "bold-reports.serviceAccountName" . }}
+      volumes:
+        - name: id-api-volume
+          persistentVolumeClaim:
+            claimName: {{ include "bold-reports.fileServerName" . }}
+            readOnly: false
+        - name: log4net-config-volume
+          configMap:
+            name: {{ include "bold-reports.log4netName" . }}
+      containers:
+        - name: api-bold-reports
+          image: "{{ .Values.idApi.image.registry }}/{{ .Values.idApi.image.repository }}:{{ .Values.idApi.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.idApi.image.pullPolicy }}          
+          volumeMounts:
+          - mountPath: /application/app_data
+            name: id-api-volume
+          - mountPath: /application/idp/api/logs
+            name: log4net-config-volume
+          ports:
+            - name: http
+              containerPort: {{ .Values.idApi.container.port }}
+              protocol: TCP
+          {{- if .Values.idApi.readinessProbe -}}        
+            {{- include "bold-reports.idApi.readinessProbe" . | nindent 10 -}}
+          {{- end -}}
+          {{- include "bold-reports.idApi.env" . | nindent 10 }}
+          resources:
+            {{- toYaml .Values.idApi.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

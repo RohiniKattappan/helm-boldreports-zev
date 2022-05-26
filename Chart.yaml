@@ -1,0 +1,23 @@
+apiVersion: v2
+annotations:
+  category: Deployment
+name: bold-reports
+description: v${EXPANSE_CHART_VERSION} - Bold Reports reporting service and server.
+type: application
+version: 1.0.3 #${EXPANSE_CHART_VERSION}
+appVersion: "3.3.23"
+home: https://owit.jfrog.io/helm/master/bold-reports
+icon: https://www.boldreports.com/wp-content/uploads/2019/09/boldreports-ogp.png
+keywords:
+  - bold reports
+  - syncfusion
+  - owit global
+maintainers:
+  - email: bold-reports@owitglobal.com
+    name: OWIT Global, LLC.  
+dependencies:
+  - name: common
+    repository: https://owit.jfrog.io/artifactory/api/helm/charts    
+    tags:
+    - owit-global-common
+    version: 1.x.x

@@ -1,0 +1,36 @@
+{{- if .Values.autoscaling.enabled }}
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "bold-reports.idWeb.name" . }}
+  namespace: {{ include "bold-reports.namespace" . }}
+  labels:
+    {{- include "bold-reports.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "bold-reports.idWeb.name" . }}
+  minReplicas: {{ default 1 .Values.autoscaling.minReplicas }}
+  maxReplicas: {{ default 3 .Values.autoscaling.maxReplicas }}
+  metrics:
+ {{- if .Values.autoscaling.targetCPUUtilizationPercentage }}
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }} 
+ {{- end }}
+ {{- if .Values.autoscaling.targetMemoryUtilizationPercentage }}
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}
+  {{- end }}
+  {{- if .Values.autoscaling.behavior }}
+  behavior: {{- .Values.autoscaling.behavior | toYaml | trim | nindent 2 -}}    
+  {{- end }}
+{{- end }}    
